@@ -25,6 +25,7 @@ import Profile from "./components/Profile"
 import Settings from "./components/Settings";
 import Payments from "./components/Payments";
 import Orders from "./components/Orders";
+import ReferAndEarn from "./components/ReferAndEarn";
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
           <Route path="/admins" element={<Admins />} />
           <Route path="/support" element={<TicketsSupport />} />
           <Route path="/offers" element={<Offers />} />
+          <Route path="/refer-earn" element={<ReferAndEarn/>} />
           <Route path="/payment" element={<Payments />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
