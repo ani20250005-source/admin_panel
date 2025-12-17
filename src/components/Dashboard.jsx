@@ -27,6 +27,7 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 const statsCards = [
   {
@@ -128,12 +129,27 @@ const productSalesData = [
 const quickActions = [
   { label: "Add Product", icon: Plus, color: "bg-blue-500" },
   { label: "Send Notification", icon: Bell, color: "bg-green-500" },
-  { label: "Update Market Rates", icon: TrendingUp, color: "bg-purple-500" },
+  { label: "Market Rates", icon: TrendingUp, color: "bg-purple-500" },
   { label: "Create Banner", icon: Image, color: "bg-orange-500" },
 ];
 
+  
 export default function Dashboard() {
   const [filter, setFilter] = useState("year");
+  const navigate = useNavigate();
+
+  const handleQuickAction = (label) => {
+  if (label === "Add Product") {
+    navigate("/admin/addproduct");
+  } else if (label === "Send Notification") {
+    navigate("/notifications");
+  } else if (label === "Market Rates") {
+    navigate("/market-rates");
+  } else if (label === "Create Banner") {
+    navigate("/websites");
+  }
+};
+
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6">
@@ -183,7 +199,7 @@ export default function Dashboard() {
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          {quickActions.map((action, i) => {
+          {/* {quickActions.map((action, i) => {
             const Icon = action.icon;
             return (
               <button
@@ -192,6 +208,19 @@ export default function Dashboard() {
               >
                 <Icon className="w-5 h-5 md:w-6 md:h-6" />
                 <span className="text-sm md:text-base">{action.label}</span>
+              </button>
+            );
+          })} */}
+          {quickActions.map((action, i) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={i}
+                onClick={() => handleQuickAction(action.label)}
+                className={`${action.color} text-white p-4 rounded-lg flex items-center gap-3 hover:opacity-90`}
+              >
+                <Icon />
+                {action.label}
               </button>
             );
           })}
