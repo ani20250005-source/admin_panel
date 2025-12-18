@@ -9,7 +9,7 @@ export default function Settings() {
   const [profile, setProfile] = useState({
     name: "Admin User",
     email: "admin@agroplatform.com",
-    phone: "+91 98765 43210",
+    phone: "+91 0000000000",
   });
 
   const [security, setSecurity] = useState({

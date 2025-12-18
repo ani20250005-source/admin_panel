@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import Layout from "./components/Layout";
 import LoginPage from "./components/Login";
 
@@ -12,7 +13,6 @@ import DeliveryPartners from "./components/DeliveryPartners";
 import DeliveryProfile from "./components/DeliveryProfile";
 import AllProducts from "./components/AllProducts";
 import ProductDetail from "./components/ProductDetail";
-import DeletedProducts from "./components/DeletedProducts";
 import CategoryList from "./components/Categories";
 import MarketRates from "./components/MarketRates";
 import WeatherSettings from "./components/WeatherSettings";
@@ -21,24 +21,32 @@ import Admins from "./components/Admins";
 import TicketsSupport from "./components/TicketsSupport";
 import Offers from "./components/Offers";
 import Notifications from "./components/Notifications";
-import Profile from "./components/Profile"
+import Profile from "./components/Profile";
 import Settings from "./components/Settings";
 import Payments from "./components/Payments";
 import Orders from "./components/Orders";
+import DeletedProducts from "./components/DeletedProducts";
+import ReferAndEarn from "./components/ReferAndEarn";
 import AddProduct from "./components/AddProduct"
 
 
 function App() {
+
+  // ✅ COMMON STATE (खूप महत्वाचं)
+  const [products, setProducts] = useState([]);
+  const [deletedProducts, setDeletedProducts] = useState([]);
+
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Login Page - opens first */}
+        {/* Login Page */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<LoginPage />} />
 
-        {/* Protected routes inside Layout */}
+        {/* Protected routes */}
         <Route element={<Layout />}>
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/addproduct" element={<AddProduct />} />
           <Route path="/customers" element={<Customers />} />
@@ -47,9 +55,34 @@ function App() {
           <Route path="/seller/:id" element={<SellerProfile />} />
           <Route path="/delivery" element={<DeliveryPartners />} />
           <Route path="/delivery-profile/:id" element={<DeliveryProfile />} />
-          <Route path="/products" element={<AllProducts />} />
+
+          {/* ✅ ALL PRODUCTS */}
+          <Route
+            path="/products"
+            element={
+              <AllProducts
+                products={products}
+                setProducts={setProducts}
+                deletedProducts={deletedProducts}
+                setDeletedProducts={setDeletedProducts}
+              />
+            }
+          />
+
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/deletedproducts" element={<DeletedProducts />} />
+
+          {/* ✅ DELETED PRODUCTS */}
+          <Route
+            path="/deletedproducts"
+            element={
+              <DeletedProducts
+                deletedProducts={deletedProducts}
+                setDeletedProducts={setDeletedProducts}
+                setProducts={setProducts}
+              />
+            }
+          />
+
           <Route path="/orders" element={<Orders />} />
           <Route path="/categories" element={<CategoryList />} />
           <Route path="/market-rates" element={<MarketRates />} />
@@ -58,10 +91,12 @@ function App() {
           <Route path="/admins" element={<Admins />} />
           <Route path="/support" element={<TicketsSupport />} />
           <Route path="/offers" element={<Offers />} />
+          <Route path="/refer-earn" element={<ReferAndEarn/>} />
           <Route path="/payment" element={<Payments />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

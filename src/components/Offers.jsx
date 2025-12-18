@@ -653,7 +653,7 @@ function OfferForm({ formData, setFormData, onSubmit, onCancel, isEditing }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
       <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-        Create New Offer
+        {isEditing ? "Edit Offer" : "Create New Offer"}
       </h2>
 
       <div className="space-y-6">
@@ -846,18 +846,19 @@ function OfferForm({ formData, setFormData, onSubmit, onCancel, isEditing }) {
         </div>
 
         {/* Submit Button */}
-       <div className="flex gap-3 pt-4">
-          <button 
-            type="button" 
-            className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md font-semibold" 
+        <div className="flex gap-3 pt-4">
+          <button
+            type="button"
+            className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md font-semibold"
             onClick={onSubmit}
           >
-            {isEditing ? "Save Changes" : "Create Offer"} {/* 👈 CONDITIONAL TEXT */}
+            {isEditing ? "Save Changes" : "Create Offer"}{" "}
+            {/* 👈 CONDITIONAL TEXT */}
           </button>
           {onCancel && (
-            <button 
-              type="button" 
-              className="px-6 bg-slate-100 text-slate-700 py-3 rounded-lg hover:bg-slate-200 transition-colors shadow-md font-semibold" 
+            <button
+              type="button"
+              className="px-6 bg-slate-100 text-slate-700 py-3 rounded-lg hover:bg-slate-200 transition-colors shadow-md font-semibold"
               onClick={onCancel}
             >
               Cancel
@@ -1387,7 +1388,6 @@ export default function App() {
   };
 
   const handleCancelForm = () => {
-    // Reset form
     setFormData({
       title: "",
       description: "",
@@ -1399,11 +1399,11 @@ export default function App() {
       bannerUrl: "",
     });
 
-    // Hide form
+    setIsEditing(false);
+    setEditingOfferId(null);
     setShowCreateForm(false);
-
-    console.log("Form cancelled"); // Replaced toast.info
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50">
@@ -1468,9 +1468,16 @@ export default function App() {
                   }
                   setShowCreateForm((prev) => !prev);
                 }}
-               className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm whitespace-nowrap w-full sm:w-auto order-3 sm:order-none"              >
+                className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm whitespace-nowrap w-full sm:w-auto order-3 sm:order-none"
+              >
                 <Plus className="w-5 h-5" />
-                <span>{showCreateForm ? "Hide Form" : "Create New Offer"}</span>
+                  <span>
+                    {showCreateForm
+                      ? isEditing
+                        ? "Cancel Editing"
+                        : "Hide Form"
+                      : "Create New Offer"}
+                  </span>
               </button>
             </div>
           </div>
@@ -1485,12 +1492,12 @@ export default function App() {
             ref={formRef}
           >
             {/* Left Side - Form */}
-            <OfferForm 
-              formData={formData} 
-              setFormData={setFormData} 
-              onSubmit={handleCreateOffer} 
-              onCancel={handleCancelForm} 
-              isEditing={isEditing} 
+            <OfferForm
+              formData={formData}
+              setFormData={setFormData}
+              onSubmit={handleCreateOffer}
+              onCancel={handleCancelForm}
+              isEditing={isEditing}
             />
 
             {/* Right Side - Preview */}

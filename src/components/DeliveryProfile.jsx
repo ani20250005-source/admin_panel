@@ -1,6 +1,12 @@
-import React from "react";
+//Deepti Kadam: In this code add block unblock functinality in this code
+import React, { useState } from "react";
 
 export default function ProfilePage() {
+  // ✅ Block / Unblock states
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [actionType, setActionType] = useState(""); // "block" | "unblock"
+
   return (
     <div className="w-full min-h-screen bg-gray-50 flex justify-center p-4 md:p-6">
       {/* Main Card Wrapper */}
@@ -12,17 +18,40 @@ export default function ProfilePage() {
           </h1>
 
           <div className="flex gap-2 bg-gray-200 rounded-full p-1 w-full sm:w-auto">
-            <button className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-full w-full sm:w-auto">
+            <button
+              className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${
+                isBlocked
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={!isBlocked}
+              onClick={() => {
+                setActionType("unblock");
+                setShowConfirm(true);
+              }}
+            >
               Unblock
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-gray-700 rounded-full hover:bg-gray-300 w-full sm:w-auto">
+
+            <button
+              className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${
+                !isBlocked
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={isBlocked}
+              onClick={() => {
+                setActionType("block");
+                setShowConfirm(true);
+              }}
+            >
               Block
             </button>
           </div>
         </div>
 
         {/* Profile Details */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-6 rounded-lg  mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-6 rounded-lg mb-6">
           <div className="flex items-center gap-4">
             <img
               src="https://th.bing.com/th/id/OIP.YoTUWMoKovQT0gCYOYMwzwHaHa?w=181&h=181&c=7&r=0&o=7"
@@ -104,7 +133,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500 mb-2">Vehicle Plate Image</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Vehicle Plate Image
+              </p>
               <img
                 src="https://tse4.mm.bing.net/th/id/OIP.LJ25TOHvPV4pcYR-z59_FgAAAA"
                 alt="plate"
@@ -114,6 +145,48 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ✅ CONFIRMATION POPUP */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              {actionType === "block" ? "Block User" : "Unblock User"}
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to{" "}
+              <span className="font-semibold">
+                {actionType === "block" ? "block" : "unblock"}
+              </span>{" "}
+              this user?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm rounded-lg bg-gray-200 hover:bg-gray-300"
+                onClick={() => setShowConfirm(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className={`px-4 py-2 text-sm rounded-lg text-white ${
+                  actionType === "block"
+                    ? "bg-red-500"
+                    : "bg-green-600"
+                }`}
+                onClick={() => {
+                  setIsBlocked(actionType === "block");
+                  setShowConfirm(false);
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

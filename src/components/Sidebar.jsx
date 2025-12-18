@@ -74,6 +74,11 @@ const menuItems = [
     label: "Tickets / Support",
     path: "/support",
   },
+  {
+  icons: <MdOutlineAppShortcut size={28} />,
+  label: "Refer & Earn",
+  path: "/refer-earn",
+  },
   { icons: <MdPayment size={28} />, label: "Payments", path: "/payment" },
   { icons: <IoSettings size={28} />, label: "Settings", path: "/settings" },
 ];
