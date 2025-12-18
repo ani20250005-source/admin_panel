@@ -10,11 +10,45 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import AddContentModal from "./AddContentModal";
+import MediaPreviewModal from "./MediaPreviewModal";
 
 export default function WebsiteContentManagement() {
   const tabs = ["Banners", "Blogs/News", "Media Gallery", "Pages"];
   const [active, setActive] = useState("Banners");
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [contents, setContents] = useState([]);
+  const [editingContent, setEditingContent] = useState(null);
+
+  const handleEdit = (item) => {
+    setEditingContent(item);
+    setShowAddModal(true);
+  };
+
+  const handleDelete = (id) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    setContents((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleSaveContent = (content) => {
+    if (editingContent) {
+      // UPDATE
+      setContents((prev) =>
+        prev.map((c) => (c.id === editingContent.id ? { ...c, ...content } : c))
+      );
+    } else {
+      // ADD
+      setContents((prev) => [{ id: Date.now(), ...content }, ...prev]);
+    }
+
+    setEditingContent(null);
+    setShowAddModal(false);
+  };
+
+  const handleAddContent = (newContent) => {
+    setContents((prev) => [{ id: Date.now(), ...newContent }, ...prev]);
+  };
 
   const handleTabClick = (tab) => {
     setActive(tab);
@@ -32,14 +66,27 @@ export default function WebsiteContentManagement() {
           </p>
         </div>
 
-        <button className="px-4 py-2 bg-green-600 text-white flex items-center gap-1 rounded-md hover:bg-green-700">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-green-600 text-white flex items-center gap-1 rounded-md hover:bg-green-700"
+        >
           <Plus size={18} /> Add New
         </button>
+
+        {showAddModal && (
+          <AddContentModal
+            onClose={() => {
+              setShowAddModal(false);
+              setEditingContent(null);
+            }}
+            onSave={handleAddContent}
+            initialData={editingContent}
+          />
+        )}
       </div>
 
       {/* Card */}
       <div className="bg-white shadow rounded-lg p-3 md:p-4">
-        
         {/* Desktop Tabs */}
         <div className="hidden md:flex gap-6 border-b border-gray-200 overflow-x-auto mb-4">
           {tabs.map((t) => (
@@ -103,11 +150,41 @@ export default function WebsiteContentManagement() {
         )}
 
         {/* Tab Contents */}
-        <div className="mt-2">
+        {/* <div className="mt-2">
           {active === "Banners" && <BannersTab />}
           {active === "Blogs/News" && <BlogsTab />}
           {active === "Media Gallery" && <MediaTab />}
           {active === "Pages" && <PagesTab />}
+        </div> */}
+        <div className="mt-2">
+          {active === "Banners" && (
+            <BannersTab
+              data={contents.filter((c) => c.type === "banner")}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+          {active === "Blogs/News" && (
+            <BlogsTab
+              data={contents.filter((c) => c.type === "blog")}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+          {active === "Media Gallery" && (
+            <MediaTab
+              data={contents.filter((c) => c.type === "media")}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+          {active === "Pages" && (
+            <PagesTab
+              data={contents.filter((c) => c.type === "page")}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -116,41 +193,49 @@ export default function WebsiteContentManagement() {
 
 /* ************************ BANNERS ************************ */
 
-function BannersTab() {
-  const banners = [
-    {
-      title: "Welcome to AgroConnect",
-      sub: "Connecting Farmers with Markets",
-      status: "Published",
-      img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-    },
-    {
-      title: "Fresh Products Daily",
-      sub: "Get the best quality products",
-      status: "Published",
-      img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-    },
-    {
-      title: "New Season Sale",
-      sub: "Up to 30% off on seeds",
-      status: "Draft",
-      img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-    },
-  ];
+function BannersTab({ data, onEdit, onDelete }) {
+  if (!data.length)
+    return <p className="text-gray-500">No banners added yet.</p>;
+
+  // const banners = [
+  //   {
+  //     title: "Welcome to AgroConnect",
+  //     sub: "Connecting Farmers with Markets",
+  //     status: "Published",
+  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
+  //   },
+  //   {
+  //     title: "Fresh Products Daily",
+  //     sub: "Get the best quality products",
+  //     status: "Published",
+  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
+  //   },
+  //   {
+  //     title: "New Season Sale",
+  //     sub: "Up to 30% off on seeds",
+  //     status: "Draft",
+  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
+  //   },
+  // ];
 
   return (
     <div className="space-y-4">
-      {banners.map((b, i) => (
+      {data.map((b, i) => (
         <div
           key={i}
           className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow flex flex-col md:flex-row md:items-center justify-between gap-3"
         >
           {/* Image */}
           <div className="flex items-center gap-4 flex-1">
-            <img
+            {/* <img
               src={b.img}
               alt={b.title}
               className="w-28 h-16 object-cover rounded-md border-2 border-dashed border-gray-200"
+            /> */}
+            <img
+              src={URL.createObjectURL(b.image)}
+              alt={b.title}
+              className="w-28 h-16 object-cover rounded-md border border-gray-200"
             />
 
             <div>
@@ -170,10 +255,10 @@ function BannersTab() {
 
           {/* Actions */}
           <div className="flex gap-3 justify-end">
-            <button className="text-blue-600 hover:text-blue-800">
+            <button className="text-blue-600 hover:text-blue-800" onClick={()=>onEdit(b)}>
               <Edit size={18} />
             </button>
-            <button className="text-red-600 hover:text-red-800">
+            <button className="text-red-600 hover:text-red-800" onClick={() => onDelete(b.id)}>
               <Trash2 size={18} />
             </button>
           </div>
@@ -185,9 +270,16 @@ function BannersTab() {
 
 /* ************************ BLOGS ************************ */
 
-function BlogsTab() {
+function BlogsTab({ data, onEdit, onDelete }) {
+  if (!data.length)
+    return <p className="text-gray-500">No banners added yet.</p>;
+
   const blogs = [
-    { title: "Best Practices for Organic Farming", views: 1234, date: "2025-11-20" },
+    {
+      title: "Best Practices for Organic Farming",
+      views: 1234,
+      date: "2025-11-20",
+    },
     { title: "Market Trends 2025", views: 1234, date: "2025-11-20" },
     { title: "Water Conservation Techniques", views: 1234, date: "2025-11-20" },
   ];
@@ -196,7 +288,7 @@ function BlogsTab() {
     <div>
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
-        {blogs.map((b, i) => (
+        {data.map((b, i) => (
           <div key={i} className="bg-white p-4 shadow rounded-lg">
             <p className="font-semibold">{b.title}</p>
             <p className="text-sm text-gray-500">Admin • {b.date}</p>
@@ -207,8 +299,8 @@ function BlogsTab() {
             </span>
 
             <div className="flex justify-end gap-3 mt-2">
-              <Edit size={18} className="text-blue-600" />
-              <Trash2 size={18} className="text-red-600" />
+              <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
+              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
             </div>
           </div>
         ))}
@@ -228,7 +320,7 @@ function BlogsTab() {
             </tr>
           </thead>
           <tbody>
-            {blogs.map((b, i) => (
+            {data.map((b, i) => (
               <tr key={i} className="border-b border-gray-300">
                 <td className="p-3">{b.title}</td>
                 <td className="p-3">Admin</td>
@@ -240,8 +332,8 @@ function BlogsTab() {
                   </span>
                 </td>
                 <td className="p-3 flex justify-end gap-3">
-                  <Edit className="text-blue-600" size={18} />
-                  <Trash2 className="text-red-600" size={18} />
+                  <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
+              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
                 </td>
               </tr>
             ))}
@@ -254,47 +346,121 @@ function BlogsTab() {
 
 /* ************************ MEDIA ************************ */
 
-function MediaTab() {
-  const items = [
-    { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
-    { title: "Product Showcase", views: 3456, date: "2025-11-18" },
-    { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
-  ];
+// function MediaTab({data}) {
+//   if (!data.length)
+//     return <p className="text-gray-500">No banners added yet.</p>;
+
+//   // const items = [
+//   //   { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
+//   //   { title: "Product Showcase", views: 3456, date: "2025-11-18" },
+//   //   { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
+//   // ];
+
+//   return (
+//     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//       {data.map((m, i) => (
+//         <div
+//           key={i}
+//           className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col"
+//         >
+//           <div className="bg-gray-200 h-40 sm:h-32 md:h-36 rounded mb-3"></div>
+//           <p className="font-medium">{m.title}</p>
+//           <p className="text-sm text-gray-500">{m.views} views</p>
+//           <p className="text-sm text-gray-500 mb-3">{m.date}</p>
+
+//           <div className="flex justify-between">
+//             <button className="px-4 py-1 border border-gray-300 rounded text-gray-600">
+//               Edit
+//             </button>
+//             <button className="px-4 py-1 bg-red-100 text-red-600 rounded">
+//               Delete
+//             </button>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+
+function MediaTab({ data, onEdit, onDelete }) {
+  const [previewMedia, setPreviewMedia] = useState(null);
+
+  if (!data.length) {
+    return <p className="text-gray-500">No media added yet.</p>;
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {items.map((m, i) => (
-        <div key={i} className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col">
-          <div className="bg-gray-200 h-40 sm:h-32 md:h-36 rounded mb-3"></div>
-          <p className="font-medium">{m.title}</p>
-          <p className="text-sm text-gray-500">{m.views} views</p>
-          <p className="text-sm text-gray-500 mb-3">{m.date}</p>
+      {data.map((m) => (
+        <div
+          key={m.id}
+          className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col"
+        >
+          {/* 🔹 MEDIA PREVIEW */}
+          <div className="mb-3" onClick={() => setPreviewMedia(m)}>
+            {m.mediaType === "Image" ? (
+              <img
+                src={m.preview}
+                alt={m.title}
+                className="h-40 sm:h-32 md:h-36 w-full object-cover rounded"
+              />
+            ) : (
+              <video
+                src={m.preview}
+                controls
+                className="h-40 sm:h-32 md:h-36 w-full object-cover rounded"
+              />
+            )}
+          </div>
 
-          <div className="flex justify-between">
-            <button className="px-4 py-1 border border-gray-300 rounded text-gray-600">Edit</button>
-            <button className="px-4 py-1 bg-red-100 text-red-600 rounded">
+          <p className="font-medium">{m.title}</p>
+
+          {/* Optional meta */}
+          <p className="text-sm text-gray-500">{m.mediaType}</p>
+
+          <div className="flex justify-between mt-auto pt-3">
+            <button
+              onClick={() => onEdit?.(m)}
+              className="px-4 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete?.(m.id)}
+              className="px-4 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
+            >
               Delete
             </button>
           </div>
         </div>
       ))}
+
+      {previewMedia && (
+        <MediaPreviewModal
+          media={previewMedia}
+          onClose={() => setPreviewMedia(null)}
+        />
+      )}
     </div>
   );
 }
 
 /* ************************ PAGES ************************ */
 
-function PagesTab() {
-  const pages = [
-    { title: "About Us", sub: "Company information and mission" },
-    { title: "Services", sub: "Our services and offerings" },
-    { title: "Contact", sub: "Contact information and form" },
-    { title: "Footer & Header", sub: "Edit navigation links and social media" },
-  ];
+function PagesTab({ data, onEdit, onDelete }) {
+  if (!data.length)
+    return <p className="text-gray-500">No banners added yet.</p>;
+
+  // const pages = [
+  //   { title: "About Us", sub: "Company information and mission" },
+  //   { title: "Services", sub: "Our services and offerings" },
+  //   { title: "Contact", sub: "Contact information and form" },
+  //   { title: "Footer & Header", sub: "Edit navigation links and social media" },
+  // ];
 
   return (
     <div className="space-y-3">
-      {pages.map((p, i) => (
+      {data.map((p, i) => (
         <div
           key={i}
           className="bg-white border border-gray-300 shadow rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3"
@@ -311,7 +477,7 @@ function PagesTab() {
               </button>
             ) : (
               <>
-                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700">
+                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700" onClick={()=>onEdit(P)}>
                   Edit Content
                 </button>
                 <button className="px-3 py-1 border border-gray-300 rounded text-gray-700">

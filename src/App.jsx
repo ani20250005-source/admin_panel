@@ -26,6 +26,7 @@ import Settings from "./components/Settings";
 import Payments from "./components/Payments";
 import Orders from "./components/Orders";
 import ReferAndEarn from "./components/ReferAndEarn";
+import AddProduct from "./components/AddProduct"
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         {/* Protected routes inside Layout */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin/addproduct" element={<AddProduct />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customer/:id" element={<CustomerProfile />} />
           <Route path="/sellers" element={<Seller />} />
