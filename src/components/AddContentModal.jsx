@@ -4,38 +4,117 @@ import { X } from "lucide-react";
 import { useState } from "react";
 
 /* ===================== BANNER FORM ===================== */
-function BannerForm({ onSubmit }) {
+// function BannerForm({ onSubmit }) {
+//   const [form, setForm] = useState({
+//     title: "",
+//     subtitle: "",
+//     status: "Published",
+//     image: null,
+//   });
+
+//   const handleChange = (e) => {
+//     const { name, value, files } = e.target;
+//     setForm({ ...form, [name]: files ? files[0] : value });
+//   };
+
+//   const handleSubmit = () => {
+//     onSubmit({ type: "banner", ...form });
+//   };
+
+//   return (
+//     <div className="flex flex-col space-y-3">
+//       <input name="title" placeholder="Banner Title" onChange={handleChange} className="input border border-gray-300 p-2 rounded-md placeholder:text-gray-400" />
+//       <input name="subtitle" placeholder="Subtitle" onChange={handleChange} className="input border border-gray-300 p-2 rounded-md placeholder:text-gray-400" />
+//       <input type="file" name="image" onChange={handleChange} className="input border border-gray-300 p-2 rounded-md placeholder:text-gray-400" />
+//       <select name="status" onChange={handleChange} className="input border border-gray-300 p-2 rounded-md placeholder:text-gray-400">
+//         <option>Published</option>
+//         <option>Draft</option>
+//       </select>
+//       <button onClick={handleSubmit} className="bg-green-600 text-white py-2 rounded-md hover:bg-green-700 placeholder:text-gray-400">
+//         Save Banner
+//       </button>
+//     </div>
+//   );
+// }
+
+function BannerForm({ onSubmit, editData }) {
   const [form, setForm] = useState({
-    title: "",
-    subtitle: "",
-    status: "Published",
+    title: editData?.title || "",
+    subtitle: editData?.subtitle || "",
+    status: editData?.status || "Published",
     image: null,
+    preview: editData?.image
+      ? URL.createObjectURL(editData.image)
+      : "",
   });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setForm({ ...form, [name]: files ? files[0] : value });
-  };
-
-  const handleSubmit = () => {
-    onSubmit({ type: "banner", ...form });
+    if (files) {
+      const file = files[0];
+      setForm((prev) => ({
+        ...prev,
+        image: file,
+        preview: URL.createObjectURL(file),
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
     <div className="flex flex-col space-y-3">
-      <input name="title" placeholder="Banner Title" onChange={handleChange} className="input border p-2 rounded-md" />
-      <input name="subtitle" placeholder="Subtitle" onChange={handleChange} className="input border p-2 rounded-md" />
-      <input type="file" name="image" onChange={handleChange} className="input border p-2 rounded-md" />
-      <select name="status" onChange={handleChange} className="input border p-2 rounded-md">
-        <option>Published</option>
-        <option>Draft</option>
+
+      {/* Text inputs */}
+      <input
+        name="title"
+        value={form.title}
+        placeholder="Banner Title"
+        onChange={handleChange}
+        className="border border-gray-300 p-2 rounded-md text-gray-800 placeholder:text-gray-400"
+      />
+
+      <input
+        name="subtitle"
+        value={form.subtitle}
+        placeholder="Subtitle"
+        onChange={handleChange}
+        className="border border-gray-300 p-2 rounded-md text-gray-800 placeholder:text-gray-400"
+      />
+
+      <label className="border border-gray-300 p-2 rounded-md text-gray-400 cursor-pointer">
+        {form.image ? form.image.name : "Choose Banner Image"}
+        <input
+          type="file"
+          value={form.image}
+          name="image"
+          onChange={handleChange}
+          className="hidden"
+        />
+      </label>
+
+      {/* Select */}
+      <select
+        name="status"
+        value={form.status}
+        onChange={handleChange}
+        className="border border-gray-300 p-2 rounded-md text-gray-800"
+      >
+        <option value="Published">Published</option>
+        <option value="Draft">Draft</option>
       </select>
-      <button onClick={handleSubmit} className="bg-green-600 text-white py-2 rounded-md hover:bg-green-700">
-        Save Banner
-      </button>
+
+      {/* Button */}
+      <button
+        onClick={() => onSubmit({ type: "banner", ...form })}
+        className="bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+      >
+{editData ? "Update Banner" : "Save Banner"}      </button>
+
     </div>
   );
 }
+
 
 /* ===================== BLOG FORM ===================== */
 function BlogForm({ onSubmit }) {
@@ -54,7 +133,15 @@ function BlogForm({ onSubmit }) {
     <div className="flex flex-col space-y-3">
       <input name="title" placeholder="Blog Title" onChange={handleChange} className="input border p-2 rounded-md border border-gray-300" />
       <textarea name="content" placeholder="Content" onChange={handleChange} className="input h-24 border p-2 rounded-md border border-gray-300" />
-      <input type="file" name="image" onChange={handleChange} className="input border p-2 rounded-md border border-gray-300" />
+      <label className="border border-gray-300 p-2 rounded-md text-gray-400 cursor-pointer">
+        {form.image ? form.image.name : "Choose Banner Image"}
+        <input
+          type="file"
+          name="image"
+          onChange={handleChange}
+          className="hidden"
+        />
+      </label>
       <button
         onClick={() => onSubmit({ type: "blog", ...form })}
         className="bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
@@ -110,7 +197,15 @@ function MediaForm({ onSubmit }) {
   return (
     <div className="flex flex-col space-y-3">
       <input name="title" placeholder="Media Title" onChange={handleChange} className="input border p-2 rounded-md border border-gray-300" />
-      <input type="file" name="file" onChange={handleChange} className="input border p-2 rounded-md border border-gray-300" />
+      <label className="border border-gray-300 p-2 rounded-md text-gray-400 cursor-pointer">
+        {form.image ? form.image.name : "Choose Banner Image"}
+        <input
+          type="file"
+          name="image"
+          onChange={handleChange}
+          className="hidden"
+        />
+      </label>
       <select name="mediaType" onChange={handleChange} className="input border p-2 rounded-md border border-gray-300">
         <option>Image</option>
         <option>Video</option>
@@ -176,19 +271,15 @@ function PageForm({ onSubmit }) {
 /* ===================== MAIN MODAL ===================== */
 
 
-export default function AddContentModal({ onClose, onSave }) {
-  const [type, setType] = useState("");
+export default function AddContentModal({ onClose, onSave,editData }) {
+  const [type, setType] = useState(editData?.type || "");
 
   const handleSubmit = (data) => {
     console.log("SUBMITTED DATA 👉", data);
-    onSave(data);
-    /*
-      API example:
-      const formData = new FormData();
-      Object.keys(data).forEach(key => formData.append(key, data[key]));
-      axios.post("/api/content", formData);
-    */
-
+    onSave({
+      ...data,
+      id: editData?.id || Date.now(),
+    });
     onClose();
   };
 
@@ -196,10 +287,11 @@ export default function AddContentModal({ onClose, onSave }) {
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-4 md:p-6 relative">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Add New Content</h3>
+          <h3 className="text-lg font-semibold">{editData ? "Edit Content" : "Add New Content"}</h3>
           <button onClick={onClose}><X /></button>
         </div>
-
+         {!editData && (
+          <>
         <label className="text-sm font-medium">Select Content Type</label>
         <select
           value={type}
@@ -212,12 +304,14 @@ export default function AddContentModal({ onClose, onSave }) {
           <option value="media">Media Gallery</option>
           <option value="page">Page</option>
         </select>
+        </>
+         )}
 
         <div className="mt-4">
-          {type === "banner" && <BannerForm onSubmit={handleSubmit} />}
-          {type === "blog" && <BlogForm onSubmit={handleSubmit} />}
-          {type === "media" && <MediaForm onSubmit={handleSubmit} />}
-          {type === "page" && <PageForm onSubmit={handleSubmit} />}
+          {type === "banner" && <BannerForm onSubmit={handleSubmit} editData={editData}/>}
+          {type === "blog" && <BlogForm onSubmit={handleSubmit} editData={editData}/>}
+          {type === "media" && <MediaForm onSubmit={handleSubmit} editData={editData}/>}
+          {type === "page" && <PageForm onSubmit={handleSubmit} editData={editData}/>}
         </div>
       </div>
     </div>

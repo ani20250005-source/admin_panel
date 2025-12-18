@@ -9,6 +9,7 @@ import {
   Globe,
   Menu,
   X,
+  Eye,
 } from "lucide-react";
 import AddContentModal from "./AddContentModal";
 import MediaPreviewModal from "./MediaPreviewModal";
@@ -67,7 +68,9 @@ export default function WebsiteContentManagement() {
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() =>{ 
+            setEditingContent(null); 
+            setShowAddModal(true)}}
           className="px-4 py-2 bg-green-600 text-white flex items-center gap-1 rounded-md hover:bg-green-700"
         >
           <Plus size={18} /> Add New
@@ -79,8 +82,8 @@ export default function WebsiteContentManagement() {
               setShowAddModal(false);
               setEditingContent(null);
             }}
-            onSave={handleAddContent}
-            initialData={editingContent}
+            onSave={handleSaveContent}
+            editData={editingContent}
           />
         )}
       </div>
@@ -194,79 +197,101 @@ export default function WebsiteContentManagement() {
 /* ************************ BANNERS ************************ */
 
 function BannersTab({ data, onEdit, onDelete }) {
+  const [previewMedia, setPreviewMedia] = useState(null);
+
   if (!data.length)
     return <p className="text-gray-500">No banners added yet.</p>;
 
-  // const banners = [
-  //   {
-  //     title: "Welcome to AgroConnect",
-  //     sub: "Connecting Farmers with Markets",
-  //     status: "Published",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  //   {
-  //     title: "Fresh Products Daily",
-  //     sub: "Get the best quality products",
-  //     status: "Published",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  //   {
-  //     title: "New Season Sale",
-  //     sub: "Up to 30% off on seeds",
-  //     status: "Draft",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  // ];
-
   return (
     <div className="space-y-4">
-      {data.map((b, i) => (
-        <div
-          key={i}
-          className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow flex flex-col md:flex-row md:items-center justify-between gap-3"
-        >
-          {/* Image */}
-          <div className="flex items-center gap-4 flex-1">
-            {/* <img
-              src={b.img}
-              alt={b.title}
-              className="w-28 h-16 object-cover rounded-md border-2 border-dashed border-gray-200"
-            /> */}
-            <img
-              src={URL.createObjectURL(b.image)}
-              alt={b.title}
-              className="w-28 h-16 object-cover rounded-md border border-gray-200"
-            />
+      {data.map((b, i) => {
+        // ✅ Detect media type safely
+        const mediaType = b.image?.type?.startsWith("image")
+          ? "Image"
+          : "Video";
 
-            <div>
-              <h3 className="font-semibold text-sm md:text-base">{b.title}</h3>
-              <p className="text-sm text-gray-500">{b.sub}</p>
-              <span
-                className={`text-xs px-2 py-1 rounded mt-2 inline-block ${
-                  b.status === "Published"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-gray-200 text-gray-600"
-                }`}
+        return (
+          <div
+            key={i}
+            className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow flex flex-col md:flex-row md:items-center justify-between gap-3"
+          >
+            {/* Media */}
+            <div className="flex items-center gap-4 flex-1">
+              {mediaType === "Image" ? (
+                <img
+                  src={URL.createObjectURL(b.image)}
+                  alt={b.title}
+                  className="w-28 h-16 object-cover rounded-md border border-gray-200"
+                />
+              ) : (
+                <video
+                  src={URL.createObjectURL(b.image)}
+                  className="w-28 h-16 object-cover rounded-md border border-gray-200"
+                  muted
+                />
+              )}
+
+              <div>
+                <h3 className="font-semibold text-sm md:text-base">
+                  {b.title}
+                </h3>
+                <p className="text-sm text-gray-500">{b.sub}</p>
+                <span
+                  className={`text-xs px-2 py-1 rounded mt-2 inline-block ${
+                    b.status === "Published"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {b.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 justify-end">
+              <button
+                className="text-gray-600 hover:text-gray-800"
+                onClick={() =>
+                  setPreviewMedia({
+                    ...b,
+                    mediaType,
+                    preview: URL.createObjectURL(b.image),
+                  })
+                }
+                title="Preview"
               >
-                {b.status}
-              </span>
+                <Eye size={18} />
+              </button>
+
+              <button
+                className="text-blue-600 hover:text-blue-800"
+                onClick={() => onEdit(b)}
+              >
+                <Edit size={18} />
+              </button>
+
+              <button
+                className="text-red-600 hover:text-red-800"
+                onClick={() => onDelete(b.id)}
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           </div>
+        );
+      })}
 
-          {/* Actions */}
-          <div className="flex gap-3 justify-end">
-            <button className="text-blue-600 hover:text-blue-800" onClick={()=>onEdit(b)}>
-              <Edit size={18} />
-            </button>
-            <button className="text-red-600 hover:text-red-800" onClick={() => onDelete(b.id)}>
-              <Trash2 size={18} />
-            </button>
-          </div>
-        </div>
-      ))}
+      {previewMedia && (
+        <MediaPreviewModal
+          media={previewMedia}
+          onClose={() => setPreviewMedia(null)}
+        />
+      )}
     </div>
   );
 }
+
 
 /* ************************ BLOGS ************************ */
 
@@ -299,8 +324,16 @@ function BlogsTab({ data, onEdit, onDelete }) {
             </span>
 
             <div className="flex justify-end gap-3 mt-2">
-              <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
-              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
+              <Edit
+                size={18}
+                className="text-blue-600"
+                onClick={() => onEdit(b)}
+              />
+              <Trash2
+                size={18}
+                className="text-red-600"
+                onClick={() => onDelete(b.id)}
+              />
             </div>
           </div>
         ))}
@@ -332,8 +365,16 @@ function BlogsTab({ data, onEdit, onDelete }) {
                   </span>
                 </td>
                 <td className="p-3 flex justify-end gap-3">
-                  <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
-              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
+                  <Edit
+                    size={18}
+                    className="text-blue-600"
+                    onClick={() => onEdit(b)}
+                  />
+                  <Trash2
+                    size={18}
+                    className="text-red-600"
+                    onClick={() => onDelete(b.id)}
+                  />
                 </td>
               </tr>
             ))}
@@ -477,7 +518,10 @@ function PagesTab({ data, onEdit, onDelete }) {
               </button>
             ) : (
               <>
-                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700" onClick={()=>onEdit(P)}>
+                <button
+                  className="px-3 py-1 border border-gray-300 rounded text-gray-700"
+                  onClick={() => onEdit(P)}
+                >
                   Edit Content
                 </button>
                 <button className="px-3 py-1 border border-gray-300 rounded text-gray-700">
