@@ -9,7 +9,6 @@ import {
 } from "react-icons/fa";
 import { CiMenuFries } from "react-icons/ci";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
-import { menuItem} from "../components/Sidebar"
 
 export default function Header({ open, setOpen, activePage, setActivePage }) {
   const navigate = useNavigate();
