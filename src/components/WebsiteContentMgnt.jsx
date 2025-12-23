@@ -9,9 +9,11 @@ import {
   Globe,
   Menu,
   X,
+  Eye,
 } from "lucide-react";
 import AddContentModal from "./AddContentModal";
 import MediaPreviewModal from "./MediaPreviewModal";
+import ContentPreviewModal from "./ContentPreviewModal";
 
 export default function WebsiteContentManagement() {
   const tabs = ["Banners", "Blogs/News", "Media Gallery", "Pages"];
@@ -20,6 +22,7 @@ export default function WebsiteContentManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [contents, setContents] = useState([]);
   const [editingContent, setEditingContent] = useState(null);
+  const[previewContent ,setPreviewContent]=useState(null);
 
   const handleEdit = (item) => {
     setEditingContent(item);
@@ -67,7 +70,9 @@ export default function WebsiteContentManagement() {
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() =>{ 
+            setEditingContent(null); 
+            setShowAddModal(true)}}
           className="px-4 py-2 bg-green-600 text-white flex items-center gap-1 rounded-md hover:bg-green-700"
         >
           <Plus size={18} /> Add New
@@ -79,8 +84,8 @@ export default function WebsiteContentManagement() {
               setShowAddModal(false);
               setEditingContent(null);
             }}
-            onSave={handleAddContent}
-            initialData={editingContent}
+            onSave={handleSaveContent}
+            editData={editingContent}
           />
         )}
       </div>
@@ -149,19 +154,13 @@ export default function WebsiteContentManagement() {
           </div>
         )}
 
-        {/* Tab Contents */}
-        {/* <div className="mt-2">
-          {active === "Banners" && <BannersTab />}
-          {active === "Blogs/News" && <BlogsTab />}
-          {active === "Media Gallery" && <MediaTab />}
-          {active === "Pages" && <PagesTab />}
-        </div> */}
         <div className="mt-2">
           {active === "Banners" && (
             <BannersTab
               data={contents.filter((c) => c.type === "banner")}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onPreview={setPreviewContent}
             />
           )}
           {active === "Blogs/News" && (
@@ -169,6 +168,7 @@ export default function WebsiteContentManagement() {
               data={contents.filter((c) => c.type === "blog")}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onPreview={setPreviewContent}
             />
           )}
           {active === "Media Gallery" && (
@@ -176,6 +176,7 @@ export default function WebsiteContentManagement() {
               data={contents.filter((c) => c.type === "media")}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onPreview={setPreviewContent}
             />
           )}
           {active === "Pages" && (
@@ -183,8 +184,18 @@ export default function WebsiteContentManagement() {
               data={contents.filter((c) => c.type === "page")}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onPreview={setPreviewContent}
             />
           )}
+
+          {previewContent && (
+          <ContentPreviewModal
+            content={previewContent}
+            onClose={() => setPreviewContent(null)}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
         </div>
       </div>
     </div>
@@ -193,211 +204,145 @@ export default function WebsiteContentManagement() {
 
 /* ************************ BANNERS ************************ */
 
-function BannersTab({ data, onEdit, onDelete }) {
-  if (!data.length)
-    return <p className="text-gray-500">No banners added yet.</p>;
 
-  // const banners = [
-  //   {
-  //     title: "Welcome to AgroConnect",
-  //     sub: "Connecting Farmers with Markets",
-  //     status: "Published",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  //   {
-  //     title: "Fresh Products Daily",
-  //     sub: "Get the best quality products",
-  //     status: "Published",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  //   {
-  //     title: "New Season Sale",
-  //     sub: "Up to 30% off on seeds",
-  //     status: "Draft",
-  //     img: "https://www.bing.com/th/id/OIP.HkHIfXfYJR9D7_jo8z5vzQHaEV?pid=ImgDet&rs=1",
-  //   },
-  // ];
+function BannersTab({ data, onEdit, onDelete, onPreview }) {
+  if (!data.length) return <p className="text-gray-500">No banners added yet.</p>;
 
   return (
     <div className="space-y-4">
-      {data.map((b, i) => (
-        <div
-          key={i}
-          className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow flex flex-col md:flex-row md:items-center justify-between gap-3"
-        >
-          {/* Image */}
-          <div className="flex items-center gap-4 flex-1">
-            {/* <img
-              src={b.img}
-              alt={b.title}
-              className="w-28 h-16 object-cover rounded-md border-2 border-dashed border-gray-200"
-            /> */}
-            <img
-              src={URL.createObjectURL(b.image)}
-              alt={b.title}
-              className="w-28 h-16 object-cover rounded-md border border-gray-200"
-            />
+      {data.map((b) => {
+        const mediaType = b.image?.type?.startsWith("image") ? "Image" : "Video";
+        const preview = b.image ? URL.createObjectURL(b.image) : null;
 
-            <div>
-              <h3 className="font-semibold text-sm md:text-base">{b.title}</h3>
-              <p className="text-sm text-gray-500">{b.sub}</p>
-              <span
-                className={`text-xs px-2 py-1 rounded mt-2 inline-block ${
-                  b.status === "Published"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-gray-200 text-gray-600"
-                }`}
+        return (
+          <div
+            key={b.id}
+            className="bg-white border border-gray-200 rounded-xl p-3 md:p-4 shadow flex flex-col md:flex-row md:items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-4 flex-1">
+              {mediaType === "Image" ? (
+                <img
+                  src={preview}
+                  alt={b.title}
+                  className="w-28 h-16 object-cover rounded-md border border-gray-200"
+                />
+              ) : (
+                <video
+                  src={preview}
+                  className="w-28 h-16 object-cover rounded-md border border-gray-200"
+                  muted
+                />
+              )}
+              <div>
+                <h3 className="font-semibold text-sm md:text-base">{b.title}</h3>
+                <p className="text-sm text-gray-500">{b.sub}</p>
+                <span
+                  className={`text-xs px-2 py-1 rounded mt-2 inline-block ${
+                    b.status === "Published"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {b.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                className="text-gray-600 hover:text-gray-800"
+                onClick={() =>
+                  onPreview({ ...b, type: "banner", preview, mediaType })
+                }
+                title="Preview"
               >
-                {b.status}
-              </span>
+                <Eye size={18} />
+              </button>
+              <button
+                className="text-blue-600 hover:text-blue-800"
+                onClick={() => onEdit(b)}
+              >
+                <Edit size={18} />
+              </button>
+              <button
+                className="text-red-600 hover:text-red-800"
+                onClick={() => onDelete(b.id)}
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 justify-end">
-            <button className="text-blue-600 hover:text-blue-800" onClick={()=>onEdit(b)}>
-              <Edit size={18} />
-            </button>
-            <button className="text-red-600 hover:text-red-800" onClick={() => onDelete(b.id)}>
-              <Trash2 size={18} />
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
+
 /* ************************ BLOGS ************************ */
 
-function BlogsTab({ data, onEdit, onDelete }) {
-  if (!data.length)
-    return <p className="text-gray-500">No banners added yet.</p>;
-
-  const blogs = [
-    {
-      title: "Best Practices for Organic Farming",
-      views: 1234,
-      date: "2025-11-20",
-    },
-    { title: "Market Trends 2025", views: 1234, date: "2025-11-20" },
-    { title: "Water Conservation Techniques", views: 1234, date: "2025-11-20" },
-  ];
+function BlogsTab({ data, onEdit, onDelete, onPreview }) {
+  if (!data.length) return <p className="text-gray-500">No blogs added yet.</p>;
 
   return (
-    <div>
-      {/* Mobile Cards */}
-      <div className="md:hidden space-y-3">
-        {data.map((b, i) => (
-          <div key={i} className="bg-white p-4 shadow rounded-lg">
+    <div className="space-y-3">
+      {data.map((b) => {
+        const preview = b.image ? URL.createObjectURL(b.image) : null;
+        return (
+          <div key={b.id} className="bg-white p-4 shadow rounded-lg">
             <p className="font-semibold">{b.title}</p>
             <p className="text-sm text-gray-500">Admin • {b.date}</p>
             <p className="text-sm text-gray-500">{b.views} views</p>
-
             <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded inline-block mt-1">
               Published
             </span>
 
-            <div className="flex justify-end gap-3 mt-2">
-              <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
-              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
+            <div className="flex gap-3 justify-end mt-2">
+              <button
+                className="text-gray-600 hover:text-gray-800"
+                onClick={() =>
+                  onPreview({ ...b, type: "blog", preview })
+                }
+                title="Preview"
+              >
+                <Eye size={18} />
+              </button>
+              <button
+                className="text-blue-600 hover:text-blue-800"
+                onClick={() => onEdit(b)}
+              >
+                <Edit size={18} />
+              </button>
+              <button
+                className="text-red-600 hover:text-red-800"
+                onClick={() => onDelete(b.id)}
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Desktop Table */}
-      <div className="hidden md:block bg-white border border-gray-300 shadow rounded-lg overflow-x-auto">
-        <table className="w-full text-left min-w-max">
-          <thead className="bg-gray-100 border-b border-gray-200 text-gray-600 text-sm">
-            <tr>
-              <th className="p-3">Title</th>
-              <th className="p-3">Author</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Views</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((b, i) => (
-              <tr key={i} className="border-b border-gray-300">
-                <td className="p-3">{b.title}</td>
-                <td className="p-3">Admin</td>
-                <td className="p-3">{b.date}</td>
-                <td className="p-3">{b.views}</td>
-                <td className="p-3">
-                  <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">
-                    Published
-                  </span>
-                </td>
-                <td className="p-3 flex justify-end gap-3">
-                  <Edit size={18} className="text-blue-600" onClick={() => onEdit(b)}/>
-              <Trash2 size={18} className="text-red-600" onClick={() => onDelete(b.id)}/>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        );
+      })}
     </div>
   );
 }
 
+
 /* ************************ MEDIA ************************ */
 
-// function MediaTab({data}) {
-//   if (!data.length)
-//     return <p className="text-gray-500">No banners added yet.</p>;
-
-//   // const items = [
-//   //   { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
-//   //   { title: "Product Showcase", views: 3456, date: "2025-11-18" },
-//   //   { title: "Farmer Success Story", views: 5678, date: "2025-11-18" },
-//   // ];
-
-//   return (
-//     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-//       {data.map((m, i) => (
-//         <div
-//           key={i}
-//           className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col"
-//         >
-//           <div className="bg-gray-200 h-40 sm:h-32 md:h-36 rounded mb-3"></div>
-//           <p className="font-medium">{m.title}</p>
-//           <p className="text-sm text-gray-500">{m.views} views</p>
-//           <p className="text-sm text-gray-500 mb-3">{m.date}</p>
-
-//           <div className="flex justify-between">
-//             <button className="px-4 py-1 border border-gray-300 rounded text-gray-600">
-//               Edit
-//             </button>
-//             <button className="px-4 py-1 bg-red-100 text-red-600 rounded">
-//               Delete
-//             </button>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-function MediaTab({ data, onEdit, onDelete }) {
-  const [previewMedia, setPreviewMedia] = useState(null);
-
-  if (!data.length) {
-    return <p className="text-gray-500">No media added yet.</p>;
-  }
+function MediaTab({ data, onEdit, onDelete, onPreview }) {
+  if (!data.length) return <p className="text-gray-500">No media added yet.</p>;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {data.map((m) => (
-        <div
-          key={m.id}
-          className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col"
-        >
-          {/* 🔹 MEDIA PREVIEW */}
-          <div className="mb-3" onClick={() => setPreviewMedia(m)}>
+        <div key={m.id} className="bg-white border border-gray-300 shadow rounded-lg p-3 flex flex-col">
+          <div
+            className="mb-3 cursor-pointer"
+            onClick={() =>
+              onPreview({ ...m, type: "media", preview: m.preview })
+            }
+          >
             {m.mediaType === "Image" ? (
               <img
                 src={m.preview}
@@ -414,55 +359,114 @@ function MediaTab({ data, onEdit, onDelete }) {
           </div>
 
           <p className="font-medium">{m.title}</p>
-
-          {/* Optional meta */}
           <p className="text-sm text-gray-500">{m.mediaType}</p>
 
-          <div className="flex justify-between mt-auto pt-3">
+          <div className="flex gap-3 justify-end mt-2">
             <button
-              onClick={() => onEdit?.(m)}
-              className="px-4 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
+              className="text-gray-600 hover:text-gray-800"
+              onClick={() => onPreview({ ...m, type: "media", preview: m.preview })}
+              title="Preview"
             >
-              Edit
+              <Eye size={18} />
             </button>
             <button
-              onClick={() => onDelete?.(m.id)}
-              className="px-4 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
+              className="text-blue-600 hover:text-blue-800"
+              onClick={() => onEdit(m)}
             >
-              Delete
+              <Edit size={18} />
+            </button>
+            <button
+              className="text-red-600 hover:text-red-800"
+              onClick={() => onDelete(m.id)}
+            >
+              <Trash2 size={18} />
             </button>
           </div>
         </div>
       ))}
-
-      {previewMedia && (
-        <MediaPreviewModal
-          media={previewMedia}
-          onClose={() => setPreviewMedia(null)}
-        />
-      )}
     </div>
   );
 }
 
+
 /* ************************ PAGES ************************ */
 
-function PagesTab({ data, onEdit, onDelete }) {
-  if (!data.length)
-    return <p className="text-gray-500">No banners added yet.</p>;
+// function PagesTab({ data, onEdit, onDelete }) {
+//   if (!data.length)
+//     return <p className="text-gray-500">No banners added yet.</p>;
 
-  // const pages = [
-  //   { title: "About Us", sub: "Company information and mission" },
-  //   { title: "Services", sub: "Our services and offerings" },
-  //   { title: "Contact", sub: "Contact information and form" },
-  //   { title: "Footer & Header", sub: "Edit navigation links and social media" },
-  // ];
+//   // const pages = [
+//   //   { title: "About Us", sub: "Company information and mission" },
+//   //   { title: "Services", sub: "Our services and offerings" },
+//   //   { title: "Contact", sub: "Contact information and form" },
+//   //   { title: "Footer & Header", sub: "Edit navigation links and social media" },
+//   // ];
+
+//   return (
+//     <div className="space-y-3">
+//       {data.map((p, i) => (
+//         <div
+//           key={i}
+//           className="bg-white border border-gray-300 shadow rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3"
+//         >
+//           <div>
+//             <p className="font-medium">{p.title}</p>
+//             <p className="text-sm text-gray-500">{p.sub}</p>
+//           </div>
+
+//           <div className="flex gap-3 w-full md:w-auto md:justify-end">
+//             {p.title === "Footer & Header" ? (
+//               <button className="px-3 py-1 border border-gray-300 rounded text-gray-700">
+//                 Edit Links
+//               </button>
+//             ) : (
+//               <>
+//                 <div className="flex gap-3 justify-end">
+//               <button
+//                 className="text-gray-600 hover:text-gray-800"
+//                 onClick={() =>
+//                   setPreviewMedia({
+//                     ...b,
+//                     mediaType,
+//                     preview: URL.createObjectURL(b.image),
+//                   })
+//                 }
+//                 title="Preview"
+//               >
+//                 <Eye size={18} />
+//               </button>
+
+//               <button
+//                 className="text-blue-600 hover:text-blue-800"
+//                 onClick={() => onEdit(b)}
+//               >
+//                 <Edit size={18} />
+//               </button>
+
+//               <button
+//                 className="text-red-600 hover:text-red-800"
+//                 onClick={() => onDelete(b.id)}
+//               >
+//                 <Trash2 size={18} />
+//               </button>
+//             </div>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+
+function PagesTab({ data, onEdit, onDelete, onPreview }) {
+  if (!data.length) return <p className="text-gray-500">No pages added yet.</p>;
 
   return (
     <div className="space-y-3">
-      {data.map((p, i) => (
+      {data.map((p) => (
         <div
-          key={i}
+          key={p.id}
           className="bg-white border border-gray-300 shadow rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3"
         >
           <div>
@@ -477,11 +481,24 @@ function PagesTab({ data, onEdit, onDelete }) {
               </button>
             ) : (
               <>
-                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700" onClick={()=>onEdit(P)}>
-                  Edit Content
+                <button
+                  className="text-gray-600 hover:text-gray-800"
+                  onClick={() => onPreview({ ...p, type: "page" })}
+                  title="Preview"
+                >
+                  <Eye size={18} />
                 </button>
-                <button className="px-3 py-1 border border-gray-300 rounded text-gray-700">
-                  Preview
+                <button
+                  className="text-blue-600 hover:text-blue-800"
+                  onClick={() => onEdit(p)}
+                >
+                  <Edit size={18} />
+                </button>
+                <button
+                  className="text-red-600 hover:text-red-800"
+                  onClick={() => onDelete(p.id)}
+                >
+                  <Trash2 size={18} />
                 </button>
               </>
             )}
@@ -491,3 +508,4 @@ function PagesTab({ data, onEdit, onDelete }) {
     </div>
   );
 }
+
