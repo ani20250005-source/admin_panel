@@ -8,31 +8,70 @@ export default function ProductDetail() {
   ];
 
   const [selectedImage, setSelectedImage] = useState(images[0]);
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [actionType, setActionType] = useState("");
+
+  const handleConfirm = () => {
+    if (actionType === "block") {
+      setIsBlocked(true);
+      console.log("Product Blocked");
+    } else {
+      setIsBlocked(false);
+      console.log("Product Unblocked");
+    }
+    setShowModal(false);
+  };
 
   return (
     <div className="w-full min-h-screen bg-gray-100 p-4 md:p-6 flex justify-center">
       {/* Single Card Wrapper */}
       <div className="bg-white shadow-lg rounded-xl w-full max-w-7xl p-6 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3 items-center mb-6 border-b  border-gray-200 pb-4">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 items-center mb-6 border-b border-gray-200 pb-4">
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
             Product Detail
           </h1>
 
+          {/* Block / Unblock */}
           <div className="flex gap-2 bg-gray-200 rounded-full p-1 w-full sm:w-auto">
-            <button className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-full w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setActionType("unblock");
+                setShowModal(true);
+              }}
+              className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto
+                ${
+                  !isBlocked
+                    ? "bg-green-600 text-white"
+                    : "text-gray-700 hover:bg-gray-300"
+                }`}
+            >
               Unblock
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-gray-700 rounded-full hover:bg-gray-300 w-full sm:w-auto">
+
+            <button
+              onClick={() => {
+                setActionType("block");
+                setShowModal(true);
+              }}
+              className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto
+                ${
+                  isBlocked
+                    ? "bg-red-600 text-white"
+                    : "text-gray-700 hover:bg-gray-300"
+                }`}
+            >
               Block
             </button>
           </div>
         </div>
+
         {/* Container (Left + Right sections) */}
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Left Section */}
           <div className="bg-white p-4 rounded-lg shadow">
-            {/* Title + Price */}
             <div className="mb-3">
               <p className="text-gray-800 font-semibold">
                 Fresh Organic Potatoes
@@ -56,9 +95,7 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Thumbnails + Main Image */}
             <div className="flex gap-3">
-              {/* Thumbnails */}
               <div className="flex flex-col gap-2">
                 {images.map((img, i) => (
                   <img
@@ -75,7 +112,6 @@ export default function ProductDetail() {
                 ))}
               </div>
 
-              {/* Main Image */}
               <div className="flex-1">
                 <img
                   src={selectedImage}
@@ -88,12 +124,10 @@ export default function ProductDetail() {
 
           {/* Right Section */}
           <div className="p-6 space-y-5 bg-white rounded-lg shadow">
-
-             <h1 className="text-base sm:text-xs font-semibold text-gray-400">
-                Merchant / Seller
+            <h1 className="text-base sm:text-xs font-semibold text-gray-400">
+              Merchant / Seller
             </h1>
 
-            {/* Seller */}
             <div className="flex items-start gap-3 border-b border-gray-200 pb-4">
               <img
                 src="https://www.bing.com/th/id/OIP.53HWJgROn3Sb1ULv8s2hlQHaLH?w=160&h=211&c=8&rs=1&qlt=90&o=6&cb=ucfimg1&dpr=1.3&pid=3.1&rm=2&ucfimg=1"
@@ -110,23 +144,18 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Description */}
-             
             <div className="border-b border-gray-200 pb-4">
-                <h1 className="text-base sm:text-xs font-semibold text-gray-400 pb-4">
-                    Description
-                </h1>
-                <p className="text-gray-600 text-sm leading-relaxed ">
+              <h1 className="text-base sm:text-xs font-semibold text-gray-400 pb-4">
+                Description
+              </h1>
+              <p className="text-gray-600 text-sm leading-relaxed">
                 Bring home the perfect kitchen essential with our Fresh Premium
                 Potatoes. Carefully selected from trusted farms, these potatoes
                 are known for their smooth texture, firm body, and natural earthy
-                taste. Whether you're preparing everyday meals or special dishes,
-                our potatoes deliver consistent quality, freshness, and flavor in
-                every bite.
-                </p>
+                taste.
+              </p>
             </div>
 
-            {/* Info Grid */}
             <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-700 border-b border-gray-200 pb-4">
               <p className="text-gray-400">Product Id</p>
               <p>90792308432-080</p>
@@ -140,7 +169,6 @@ export default function ProductDetail() {
               <p>80</p>
             </div>
 
-            {/* Available Sizes */}
             <div>
               <p className="text-sm font-semibold text-gray-400 mb-2">
                 Available Size
@@ -167,9 +195,10 @@ export default function ProductDetail() {
 
         {/* Reviews */}
         <div className="p-6 bg-white rounded-lg shadow">
-             <p className="text-sm font-semibold text-gray-400 mb-4">
-               Review & Ratings
-              </p>
+          <p className="text-sm font-semibold text-gray-400 mb-4">
+            Review & Ratings
+          </p>
+
           <div className="flex items-center gap-2 mb-4">
             <span className="bg-green-600 text-white px-2 py-1 text-xs rounded">
               ⭐ 4.5
@@ -179,7 +208,6 @@ export default function ProductDetail() {
             </span>
           </div>
 
-          {/* Review Items */}
           <div className="space-y-4 text-sm text-gray-700">
             <div>
               ⭐⭐⭐⭐
@@ -205,6 +233,43 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* 🔥 POPUP */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-lg w-[90%] max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              {actionType === "block" ? "Block Product" : "Unblock Product"}
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-6">
+              {actionType === "block"
+                ? "Are you sure you want to block this product? It will not be visible to customers."
+                : "Are you sure you want to unblock this product?"}
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleConfirm}
+                className={`px-4 py-2 text-sm rounded-md text-white ${
+                  actionType === "block"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

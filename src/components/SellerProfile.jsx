@@ -10,6 +10,7 @@ const tabs = ["Store Info", "Products", "Payment", "Review & Rating"];
 
 const currentSeller = {
   name: "Shop.com",
+  sellerName: "Sanjay Kumar",
   city: "Baner, Pune",
   phone: "+91-888-777-0080",
   email: "service@shop.com",
@@ -194,6 +195,17 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 md:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-3 mb-4 text-lg font-medium text-gray-700 cursor-pointer">
+          <span
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 hover:text-black"
+          >
+            <span className="text-2xl">←</span>
+            <span>Back</span>
+          </span>
+        </div>
+
+
         <div className="bg-white p-6 rounded-xl shadow-xl border border-gray-100">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row justify-between gap-3 items-center mb-6 border-b border-gray-200 pb-4">
@@ -203,11 +215,10 @@ const App = () => {
 
             <div className="flex gap-2 bg-gray-200 rounded-full p-1 w-full sm:w-auto">
               <button
-                className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${
-                  isBlocked
+                className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${isBlocked
                     ? "bg-green-600 text-white"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
                 disabled={!isBlocked}
                 onClick={() => {
                   setActionType("unblock");
@@ -218,11 +229,10 @@ const App = () => {
               </button>
 
               <button
-                className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${
-                  !isBlocked
+                className={`px-4 py-2 text-sm font-medium rounded-full w-full sm:w-auto ${!isBlocked
                     ? "bg-red-500 text-white"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
                 disabled={isBlocked}
                 onClick={() => {
                   setActionType("block");
@@ -234,7 +244,7 @@ const App = () => {
             </div>
           </div>
 
-             {/* Seller Info Section */}
+          {/* Seller Info Section */}
           <div className="flex flex-col lg:flex-row gap-6 pb-6 border-b border-gray-200 ">
             <div className="flex flex-1 gap-4">
               <img
@@ -243,7 +253,9 @@ const App = () => {
               />
               <div>
                 <h2 className="text-xl font-bold">{currentSeller.name}</h2>
+                Seller: {currentSeller.sellerName}
                 <p className="text-sm text-gray-500">{currentSeller.city}</p>
+
 
                 <div className="flex items-center gap-3 mt-2">
                   <span className="bg-[green] text-white text-xs px-2 py-1 rounded-md flex items-center">
@@ -269,8 +281,8 @@ const App = () => {
                 <button
                   key={item}
                   className={`py-3 text-sm whitespace-nowrap ${activeTab === item
-                      ? "border-b-2 border-[green] text-[green] font-semibold"
-                      : "text-gray-500 hover:text-[green]"
+                    ? "border-b-2 border-[green] text-[green] font-semibold"
+                    : "text-gray-500 hover:text-[green]"
                     }`}
                   onClick={() => setActiveTab(item)}
                 >
@@ -287,7 +299,12 @@ const App = () => {
                 <h3 className="text-xl font-bold mb-5">Store Information</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
-
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase">Seller Name</p>
+                    <p className="font-semibold text-gray-800">
+                      {currentSeller.sellerName}
+                    </p>
+                  </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase">Store Name</p>
                     <p className="font-semibold text-gray-800">{currentSeller.name}</p>
@@ -425,11 +442,10 @@ const App = () => {
                 </button>
 
                 <button
-                  className={`px-4 py-2 text-sm rounded-lg text-white ${
-                    actionType === "block"
+                  className={`px-4 py-2 text-sm rounded-lg text-white ${actionType === "block"
                       ? "bg-red-500"
                       : "bg-green-600"
-                  }`}
+                    }`}
                   onClick={() => {
                     setIsBlocked(actionType === "block");
                     setShowConfirm(false);

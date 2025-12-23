@@ -19,6 +19,7 @@ export default function AllProducts() {
 
   const [page, setPage] = useState(1);
   const itemsPerPage = 7;
+  
 
   const [products, setProducts] = useState([
     {
@@ -57,23 +58,23 @@ export default function AllProducts() {
   ]);
 
   const handleDelete = (index) => {
-  const ok = window.confirm("Are you sure you want to delete this product?");
-  if (!ok) return;
+    const ok = window.confirm("Are you sure you want to delete this product?");
+    if (!ok) return;
 
-  const deletedItem = products[index];
+    const deletedItem = products[index];
 
-  // 🔹 get old deleted products
-  const oldDeleted = JSON.parse(localStorage.getItem("deletedProducts")) || [];
+    // 🔹 get old deleted products
+    const oldDeleted = JSON.parse(localStorage.getItem("deletedProducts")) || [];
 
-  // 🔹 add new deleted product
-  localStorage.setItem(
-    "deletedProducts",
-    JSON.stringify([...oldDeleted, deletedItem])
-  );
+    // 🔹 add new deleted product
+    localStorage.setItem(
+      "deletedProducts",
+      JSON.stringify([...oldDeleted, deletedItem])
+    );
 
-  // 🔹 remove from all products
-  setProducts((prev) => prev.filter((_, i) => i !== index));
-};
+    // 🔹 remove from all products
+    setProducts((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -140,7 +141,7 @@ export default function AllProducts() {
 
           <tbody>
             {paginated.map((p, i) => (
-              <tr key={i} className="border-b hover:bg-gray-50 text-gray-600">
+              <tr key={i} className="border-b border-gray-200 hover:bg-gray-50 text-gray-600">
                 <td className="px-4 py-3 flex gap-3 items-center">
                   <img className="w-10 h-10 rounded border object-cover" src={p.image} alt={p.name} />
                   <div className="font-medium text-gray-800">{p.name}</div>
@@ -174,10 +175,44 @@ export default function AllProducts() {
       {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
         {paginated.map((p, idx) => (
-          <div key={idx} className="bg-white shadow-sm rounded-lg p-4 border">
-            <h3 className="font-semibold">{p.name}</h3>
+          <div
+            key={idx}
+            className="bg-white shadow-sm rounded-lg p-4 border border-gray-200"
+          >
+            {/* Product Name + Image */}
+            <div className="flex gap-3 items-center mb-3">
+              <img
+                src={p.image}
+                alt={p.name}
+                className="w-16 h-16 rounded border object-cover"
+              />
+              <h3 className="font-semibold text-gray-800">{p.name}</h3>
+            </div>
 
-            <div className="mt-3 flex gap-2">
+            {/* Product Details */}
+            <div className="text-sm text-gray-700 space-y-1">
+              <div>
+                <span className="text-gray-400">Price:</span> ₹{p.price}
+              </div>
+              <div>
+                <span className="text-gray-400">Merchant:</span> {p.merchant}
+              </div>
+              <div>
+                <span className="text-gray-400">Added Date:</span> {p.added}
+              </div>
+              <div>
+                <span className="text-gray-400">Stock:</span> {p.stock}
+              </div>
+              <div>
+                <span className="text-gray-400">Category:</span> {p.category}
+              </div>
+              <div className="text-green-600 font-medium">
+                ⭐ {p.rating}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-4 flex gap-2">
               <button
                 onClick={() => navigate(`/product/${idx}`)}
                 className="w-full px-3 py-2 text-sm border rounded-md text-[green] border-[green]"
@@ -191,11 +226,58 @@ export default function AllProducts() {
               >
                 <Trash2 size={16} />
               </button>
-
             </div>
           </div>
         ))}
       </div>
+{/* Pagination (Desktop + Mobile) */}
+<div className="flex justify-end items-center mt-6 gap-2 text-sm">
+  <button
+    onClick={() => setPage((p) => Math.max(1, p - 1))}
+    disabled={page === 1}
+    className="px-3 py-1 rounded-md disabled:opacity-50 hover:text-[green]"
+  >
+    Prev
+  </button>
+
+  {/* Page numbers (max 5 visible) */}
+  {(() => {
+    const pages = [];
+    const maxShown = 5;
+    let start = Math.max(1, page - Math.floor(maxShown / 2));
+    let end = start + maxShown - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxShown + 1);
+    }
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    return pages.map((num) => (
+      <button
+        key={num}
+        onClick={() => setPage(num)}
+        className={`px-3 py-1 border rounded-md ${
+          page === num
+            ? "bg-[green] text-white"
+            : "hover:bg-[green] hover:text-white"
+        }`}
+      >
+        {num}
+      </button>
+    ));
+  })()}
+
+  <button
+    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+    disabled={page === totalPages}
+    className="px-3 py-1 rounded-md disabled:opacity-50 hover:text-[green]"
+  >
+    Next
+  </button>
+</div>
+
     </div>
   );
 }
